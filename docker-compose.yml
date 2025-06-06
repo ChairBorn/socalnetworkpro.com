@@ -1,4 +1,5 @@
 services:
+# DB
   mysql:
     image: mariadb:11.4
     logging:
@@ -14,6 +15,7 @@ services:
     restart: always
     networks:
       - default
+# WP OLS
   litespeed:
     image: litespeedtech/openlitespeed:${OLS_VERSION}-${PHP_VERSION}
     container_name: litespeed
@@ -36,6 +38,7 @@ services:
       TZ: ${TimeZone}
     networks:
       - default
+# PHPMYADMIN
   phpmyadmin:
     image: bitnami/phpmyadmin:5.2.2
     ports:
@@ -46,6 +49,7 @@ services:
     restart: always
     networks:
       - default
+# REDIS
   redis:
     image: "redis:alpine"
     logging:
