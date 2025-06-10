@@ -13,8 +13,11 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     restart: always
+    # networks:
+    #   - default
     networks:
-      - default
+      wp-network:
+        ipv4_address: 10.0.0.2
 # WP OLS
   litespeed:
     image: litespeedtech/openlitespeed:${OLS_VERSION}-${PHP_VERSION}
@@ -32,23 +35,30 @@ services:
       - 80:80
       - 443:443
       - 443:443/udp
-      - 7080:7080
+      - 7080:7080  # Remove to be handled by OLS Proxy
+    networks:
+      wp-network:
+        ipv4_address: 10.0.0.3
     restart: always
     environment:
       TZ: ${TimeZone}
-    networks:
-      - default
+    # networks:
+    #   - default
 # PHPMYADMIN
   phpmyadmin:
     image: bitnami/phpmyadmin:5.2.2
+    container_name: phpmyadmin
     ports:
       - 8080:8080
       - 8443:8443
     environment:
         DATABASE_HOST: mysql
     restart: always
+    # networks:
+    #   - default
     networks:
-      - default
+      wp-network:
+        ipv4_address: 10.0.0.4
 # REDIS
   redis:
     image: "redis:alpine"
@@ -61,8 +71,29 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=master
     restart: always
+    # networks:
+    #   - default
     networks:
-      - default
+      wp-network:
+        ipv4_address: 10.0.0.5
+
+# VOLUMES
+volumes:
+  redis:
+  lsws:
+  bin:
+  sites:
+  acme:
+  logs:
+  db:
+  phpmyadmin:
+  data:
+
 networks:
-  default:
-    driver: bridge
+  wp-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/24
+          ip_range: 10.0.0.0/24
+          gateway: 10.0.0.1

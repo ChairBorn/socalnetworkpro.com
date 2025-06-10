@@ -201,3 +201,13 @@ If you still have a question after using OpenLiteSpeed Docker, you have a few op
 * Reporting any issue on [Github ols-docker-env](https://github.com/litespeedtech/ols-docker-env/issues) project
 
 **Pull requests are always welcome** 
+
+
+
+# User Config 
+
+# Note: We use the main site's root to solve the challenge for the new subdomain
+acme.sh --issue -d admin.socalnetworkpro.com --webroot /var/www/vhosts/socalnetworkpro.com -k ec-256
+
+# Note: We use the main site's root to solve the challenge for the new subdomain
+acme.sh --issue -d subdomain.domain.com --webroot /var/www/vhosts/domain.com -k ec-256
