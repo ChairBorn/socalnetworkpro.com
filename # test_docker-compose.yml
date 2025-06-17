@@ -1,0 +1,64 @@
+# test_docker-compose.yml
+import os
+import yaml
+
+def load_compose():
+  with open('docker-compose.yml', 'r') as f:
+    return yaml.safe_load(f)
+
+def test_services_exist():
+  compose = load_compose()
+  services = compose['services']
+  assert 'mysql' in services
+  assert 'litespeed' in services
+  assert 'phpmyadmin' in services
+  assert 'redis' in services
+
+def test_mysql_config():
+  compose = load_compose()
+  mysql = compose['services']['mysql']
+  assert mysql['image'].startswith('mariadb:')
+  assert mysql['container_name'] == 'mysql'
+  assert 'MYSQL_ROOT_PASSWORD' in mysql['environment']
+  assert 'MYSQL_DATABASE' in mysql['environment']
+  assert 'MYSQL_USER' in mysql['environment']
+  assert 'MYSQL_PASSWORD' in mysql['environment']
+  assert mysql['networks']['wp-network']['ipv4_address'] == '10.0.0.2'
+
+def test_litespeed_config():
+  compose = load_compose()
+  ls = compose['services']['litespeed']
+  assert ls['image'].startswith('litespeedtech/openlitespeed:')
+  assert ls['container_name'] == 'litespeed'
+  assert ls['networks']['wp-network']['ipv4_address'] == '10.0.0.3'
+  assert 'TZ' in ls['environment']
+
+def test_phpmyadmin_config():
+  compose = load_compose()
+  pma = compose['services']['phpmyadmin']
+  assert pma['image'].startswith('bitnami/phpmyadmin:')
+  assert pma['container_name'] == 'phpmyadmin'
+  assert pma['networks']['wp-network']['ipv4_address'] == '10.0.0.4'
+  assert 'DATABASE_HOST' in pma['environment']
+
+def test_redis_config():
+  compose = load_compose()
+  redis = compose['services']['redis']
+  assert redis['image'].startswith('redis:')
+  assert redis['container_name'] == 'redis'
+  assert redis['networks']['wp-network']['ipv4_address'] == '10.0.0.5'
+
+def test_volumes_defined():
+  compose = load_compose()
+  vols = compose['volumes']
+  for v in ['redis', 'lsws', 'bin', 'sites', 'acme', 'logs', 'db', 'phpmyadmin', 'data']:
+    assert v in vols
+
+def test_networks_defined():
+  compose = load_compose()
+  nets = compose['networks']
+  assert 'wp-network' in nets
+  ipam = nets['wp-network']['ipam']
+  assert ipam['config'][0]['subnet'] == '10.0.0.0/24'
+  assert ipam['config'][0]['ip_range'] == '10.0.0.0/24'
+  assert ipam['config'][0]['gateway'] == '10.0.0.1'
