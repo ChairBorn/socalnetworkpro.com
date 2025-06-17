@@ -51,9 +51,9 @@ services:
   phpmyadmin:
     image: bitnami/phpmyadmin:5.2.2
     container_name: phpmyadmin
-    ports:
-      - 8080:8080
-      - 8443:8443
+    # ports:
+    #   - 8080:8080
+    #   - 8443:8443
     environment:
         DATABASE_HOST: mysql
     restart: always
